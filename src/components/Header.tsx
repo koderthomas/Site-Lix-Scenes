@@ -6,7 +6,7 @@ export default function Header() {
           <img
             src="images/Logo.jpg"
             alt="Lix'Scènes Live Music"
-            className="h-11 sm:h-14 w-auto object-contain"
+            className="h-24 sm:h-32 w-auto object-contain"
           />
           <div className="hidden sm:flex items-center gap-3">
             <span className="w-1.5 h-1.5 rounded-full bg-brand-coral" />
