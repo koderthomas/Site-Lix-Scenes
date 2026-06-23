@@ -7,7 +7,7 @@ export default function Hero() {
         {/* 1. BANNIÈRE PRINCIPALE (GAUCHE & CENTRE) */}
         <div className="flex-[3] relative min-w-0 bg-stone-950">
           <img
-            src="images/articles/Direction_artistique_(3).jpg"
+            src="images/articles/Direction_artistique_long.jpg"
             alt="Summer Live #6 — 4 Juillet 2026"
             /* CORRIGÉ : object-contain affiche l'affiche SUM Live à 100% sans la tronquer */
             className="w-full h-full object-contain object-center"
