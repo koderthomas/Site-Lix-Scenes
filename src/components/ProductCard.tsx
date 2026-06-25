@@ -22,7 +22,21 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
     setImgIndex(i => (i + 1) % product.images.length);
   };
 
-  // --- Gestion du Swipe ---
+  // --- Effet E-commerce : Troisième photo au survol ---
+  const handleMouseEnter = () => {
+    if (product.images.length > 1) {
+      const targetIndex = product.images.length >= 3 ? 2 : 1;
+      setImgIndex(targetIndex);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (product.images.length > 1) {
+      setImgIndex(0);
+    }
+  };
+
+  // --- Gestion du Swipe (Mobile) ---
   const handleTouchStart = (e: TouchEvent) => {
     setTouchStartX(e.targetTouches[0].clientX);
   };
@@ -32,26 +46,24 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
 
     const touchEndX = e.changedTouches[0].clientX;
     const diffX = touchStartX - touchEndX;
-    const minSwipeDistance = 40; // Seuil en pixels légèrement plus sensible pour les cartes
+    const minSwipeDistance = 40;
 
     if (Math.abs(diffX) > minSwipeDistance) {
-      // Bloque l'ouverture de la modal liée au onClick de l'article
       e.stopPropagation();
-      
       if (diffX > 0) {
         next(e);
       } else {
         prev(e);
       }
     }
-    
     setTouchStartX(null);
   };
-  // -------------------------
 
   return (
     <article
       onClick={onClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className={`group rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
         isSpecialEdition
           ? 'bg-white border-2 border-brand-blue/30 hover:border-brand-blue hover:shadow-brand-blue/20'
@@ -90,7 +102,7 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
           </div>
         </div>
 
-        {/* Image navigation — only shows if multiple images */}
+        {/* Image navigation */}
         {product.images.length > 1 && (
           <>
             <button
