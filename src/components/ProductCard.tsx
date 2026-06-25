@@ -11,19 +11,17 @@ interface Props {
 export default function ProductCard({ product, isSpecialEdition, onClick }: Props) {
   const [imgIndex, setImgIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
-  const [isHovered, setIsHovered] = useState(false);
   const [showSwipeHint, setShowSwipeHint] = useState(false);
+  const [hasHovered, setHasHovered] = useState(false);
 
   const hasMultipleImages = product.images.length > 1;
 
   // Active l'indicateur de swipe sur mobile au chargement si le produit a plusieurs images
   useEffect(() => {
     if (hasMultipleImages) {
-      // Détecte si l'appareil est tactile
       const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
       if (isTouchDevice) {
         setShowSwipeHint(true);
-        // Masque l'indicateur automatiquement après 3.5 secondes
         const timer = setTimeout(() => setShowSwipeHint(false), 3500);
         return () => clearTimeout(timer);
       }
@@ -40,10 +38,27 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
     setImgIndex(i => (i + 1) % product.images.length);
   };
 
+  // --- Gestion du Survol (PC) ---
+  const handleMouseEnter = () => {
+    // Si l'utilisateur n'a pas encore cliqué sur les flèches pendant ce survol,
+    // on passe automatiquement à la deuxième image
+    if (hasMultipleImages && !hasHovered) {
+      setImgIndex(1);
+      setHasHovered(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (hasMultipleImages) {
+      setImgIndex(0); // Revient à la première image
+      setHasHovered(false); // Réinitialise l'état du survol
+    }
+  };
+
   // --- Gestion du Swipe (Mobile) ---
   const handleTouchStart = (e: TouchEvent) => {
     setTouchStartX(e.targetTouches[0].clientX);
-    setShowSwipeHint(false); // Masque immédiatement l'indication dès que l'utilisateur interagit
+    setShowSwipeHint(false);
   };
 
   const handleTouchEnd = (e: TouchEvent) => {
@@ -67,15 +82,15 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
   return (
     <article
       onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className={`group rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
         isSpecialEdition
           ? 'bg-white border-2 border-brand-blue/30 hover:border-brand-blue hover:shadow-brand-blue/20'
           : 'bg-white border border-stone-200 hover:border-stone-400 hover:shadow-stone-300/40'
       }`}
     >
-      {/* Préchargement de la deuxième image en arrière-plan pour éviter le flash blanc */}
+      {/* Préchargement de la deuxième image en arrière-plan */}
       {hasMultipleImages && (
         <link rel="preload" as="image" href={product.images[1]} />
       )}
@@ -86,25 +101,17 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
         onTouchStart={hasMultipleImages ? handleTouchStart : undefined}
         onTouchEnd={hasMultipleImages ? handleTouchEnd : undefined}
       >
-        {/* Première image (Toujours affichée par défaut) */}
-        <img
-          src={product.images[0]}
-          alt={`${product.name} — vue principale`}
-          className={`w-full h-full object-cover object-center transition-all duration-500 group-hover:scale-105 pointer-events-none absolute inset-0 ${
-            hasMultipleImages && isHovered ? 'opacity-0' : 'opacity-100'
-          }`}
-        />
-
-        {/* Deuxième image (Affichée en fondu au survol sur PC, ou gérée par l'index via swipe/points) */}
-        {hasMultipleImages && (
+        {/* Rendu dynamique basé directement sur l'état imgIndex (permet aux flèches d'agir instantanément) */}
+        {product.images.map((src, idx) => (
           <img
-            src={product.images[isHovered ? 1 : imgIndex]}
-            alt={`${product.name} — vue alternative`}
-            className={`w-full h-full object-cover object-center transition-all duration-500 group-hover:scale-105 pointer-events-none absolute inset-0 ${
-              isHovered || imgIndex !== 0 ? 'opacity-100' : 'opacity-0'
+            key={idx}
+            src={src}
+            alt={`${product.name} — vue ${idx + 1}`}
+            className={`w-full h-full object-cover object-center transition-opacity duration-500 group-hover:scale-105 pointer-events-none absolute inset-0 ${
+              idx === imgIndex ? 'opacity-100 z-0' : 'opacity-0 -z-10'
             }`}
           />
-        )}
+        ))}
 
         {/* Indication de Swipe Visuelle sur Mobile */}
         {showSwipeHint && (
@@ -125,14 +132,14 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
           </div>
         )}
 
-        {/* Zoom hint (Desktop uniquement au survol profond) */}
+        {/* Zoom hint */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/5 pointer-events-none">
           <div className="bg-white/90 rounded-full p-2.5 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
             <ZoomIn size={16} className="text-stone-700" />
           </div>
         </div>
 
-        {/* Flèches Discrètes de Navigation (Uniquement visibles sur PC au survol) */}
+        {/* Flèches de Navigation (Visibles sur PC au survol) */}
         {hasMultipleImages && (
           <>
             <div
@@ -152,7 +159,7 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
               <span className="text-xs">▶</span>
             </div>
 
-            {/* Petits Points de Navigation (Visibles partout si swipe ou choix manuel) */}
+            {/* Petits Points de Navigation */}
             <div className="absolute bottom-2.5 left-0 right-0 flex justify-center gap-1.5 z-10">
               {product.images.map((_, i) => (
                 <div
@@ -161,7 +168,7 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
                   role="button"
                   aria-label={`Photo ${i + 1}`}
                   className={`rounded-full transition-all duration-200 cursor-pointer ${
-                    (isHovered && i === 1) || (!isHovered && i === imgIndex)
+                    i === imgIndex
                       ? 'w-4 h-1.5 bg-white'
                       : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/80'
                   }`}
