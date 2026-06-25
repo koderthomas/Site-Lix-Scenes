@@ -1,5 +1,5 @@
-import { useState, TouchEvent } from 'react';
-import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+import { useState, TouchEvent, useEffect } from 'react';
+import { ZoomIn } from 'lucide-react';
 import type { Product } from '../data/products';
 
 interface Props {
@@ -11,6 +11,24 @@ interface Props {
 export default function ProductCard({ product, isSpecialEdition, onClick }: Props) {
   const [imgIndex, setImgIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [showSwipeHint, setShowSwipeHint] = useState(false);
+
+  const hasMultipleImages = product.images.length > 1;
+
+  // Active l'indicateur de swipe sur mobile au chargement si le produit a plusieurs images
+  useEffect(() => {
+    if (hasMultipleImages) {
+      // Détecte si l'appareil est tactile
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      if (isTouchDevice) {
+        setShowSwipeHint(true);
+        // Masque l'indicateur automatiquement après 3.5 secondes
+        const timer = setTimeout(() => setShowSwipeHint(false), 3500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [product.images, hasMultipleImages]);
 
   const prev = (e: React.MouseEvent | TouchEvent) => {
     e.stopPropagation();
@@ -22,22 +40,10 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
     setImgIndex(i => (i + 1) % product.images.length);
   };
 
-  // --- Effet E-commerce : Deuxième photo au survol ---
-  const handleMouseEnter = () => {
-    if (product.images.length > 1) {
-      setImgIndex(1);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (product.images.length > 1) {
-      setImgIndex(0);
-    }
-  };
-
   // --- Gestion du Swipe (Mobile) ---
   const handleTouchStart = (e: TouchEvent) => {
     setTouchStartX(e.targetTouches[0].clientX);
+    setShowSwipeHint(false); // Masque immédiatement l'indication dès que l'utilisateur interagit
   };
 
   const handleTouchEnd = (e: TouchEvent) => {
@@ -61,26 +67,51 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
   return (
     <article
       onClick={onClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       className={`group rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
         isSpecialEdition
           ? 'bg-white border-2 border-brand-blue/30 hover:border-brand-blue hover:shadow-brand-blue/20'
           : 'bg-white border border-stone-200 hover:border-stone-400 hover:shadow-stone-300/40'
       }`}
     >
+      {/* Préchargement de la deuxième image en arrière-plan pour éviter le flash blanc */}
+      {hasMultipleImages && (
+        <link rel="preload" as="image" href={product.images[1]} />
+      )}
+
       {/* Image area */}
       <div 
         className="relative aspect-[3/4] overflow-hidden bg-stone-100 select-none touch-pan-y"
-        onTouchStart={product.images.length > 1 ? handleTouchStart : undefined}
-        onTouchEnd={product.images.length > 1 ? handleTouchEnd : undefined}
+        onTouchStart={hasMultipleImages ? handleTouchStart : undefined}
+        onTouchEnd={hasMultipleImages ? handleTouchEnd : undefined}
       >
+        {/* Première image (Toujours affichée par défaut) */}
         <img
-          key={imgIndex}
-          src={product.images[imgIndex]}
-          alt={`${product.name} — vue ${imgIndex + 1}`}
-          className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105 pointer-events-none"
+          src={product.images[0]}
+          alt={`${product.name} — vue principale`}
+          className={`w-full h-full object-cover object-center transition-all duration-500 group-hover:scale-105 pointer-events-none absolute inset-0 ${
+            hasMultipleImages && isHovered ? 'opacity-0' : 'opacity-100'
+          }`}
         />
+
+        {/* Deuxième image (Affichée en fondu au survol sur PC, ou gérée par l'index via swipe/points) */}
+        {hasMultipleImages && (
+          <img
+            src={product.images[isHovered ? 1 : imgIndex]}
+            alt={`${product.name} — vue alternative`}
+            className={`w-full h-full object-cover object-center transition-all duration-500 group-hover:scale-105 pointer-events-none absolute inset-0 ${
+              isHovered || imgIndex !== 0 ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        )}
+
+        {/* Indication de Swipe Visuelle sur Mobile */}
+        {showSwipeHint && (
+          <div className="absolute top-3 right-3 z-20 pointer-events-none bg-black/60 backdrop-blur-xs text-white text-[10px] font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5 animate-pulse transition-opacity duration-500">
+            <span className="inline-block animate-bounce">↔</span> Glisser pour voir
+          </div>
+        )}
 
         {/* Special badge */}
         {isSpecialEdition && (
@@ -94,42 +125,45 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
           </div>
         )}
 
-        {/* Zoom hint */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/10">
-          <div className="bg-white/90 rounded-full p-2.5 shadow-lg">
+        {/* Zoom hint (Desktop uniquement au survol profond) */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/5 pointer-events-none">
+          <div className="bg-white/90 rounded-full p-2.5 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
             <ZoomIn size={16} className="text-stone-700" />
           </div>
         </div>
 
-        {/* Image navigation */}
-        {product.images.length > 1 && (
+        {/* Flèches Discrètes de Navigation (Uniquement visibles sur PC au survol) */}
+        {hasMultipleImages && (
           <>
-            <button
+            <div
               onClick={prev}
+              role="button"
               aria-label="Image précédente"
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-black/70 z-10"
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 text-white hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-black/60 z-10 cursor-pointer"
             >
-              <ChevronLeft size={14} />
-            </button>
-            <button
+              <span className="text-xs">◀</span>
+            </div>
+            <div
               onClick={next}
+              role="button"
               aria-label="Image suivante"
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-black/70 z-10"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 text-white hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-black/60 z-10 cursor-pointer"
             >
-              <ChevronRight size={14} />
-            </button>
+              <span className="text-xs">▶</span>
+            </div>
 
-            {/* Dots */}
+            {/* Petits Points de Navigation (Visibles partout si swipe ou choix manuel) */}
             <div className="absolute bottom-2.5 left-0 right-0 flex justify-center gap-1.5 z-10">
               {product.images.map((_, i) => (
-                <button
+                <div
                   key={i}
                   onClick={e => { e.stopPropagation(); setImgIndex(i); }}
+                  role="button"
                   aria-label={`Photo ${i + 1}`}
-                  className={`rounded-full transition-all duration-200 ${
-                    i === imgIndex
+                  className={`rounded-full transition-all duration-200 cursor-pointer ${
+                    (isHovered && i === 1) || (!isHovered && i === imgIndex)
                       ? 'w-4 h-1.5 bg-white'
-                      : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/80'
+                      : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/80'
                   }`}
                 />
               ))}
