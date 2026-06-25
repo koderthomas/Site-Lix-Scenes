@@ -77,12 +77,13 @@ export default function App() {
 
           {/* Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-            {filtered.map(product => (
+            {filtered.map((product, index) => (
               <ProductCard
                 key={product.id}
                 product={product}
                 isSpecialEdition={product.isSpecial}
                 onClick={() => setSelectedProduct(product)}
+                isFirst={index === 0} // Transmet l'info pour l'animation visuelle de Swipe
               />
             ))}
           </div>
