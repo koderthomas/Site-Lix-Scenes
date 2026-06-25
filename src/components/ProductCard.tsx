@@ -6,9 +6,10 @@ interface Props {
   product: Product;
   isSpecialEdition?: boolean;
   onClick: () => void;
+  isFirst?: boolean; // Permet de cibler uniquement la première carte pour l'animation
 }
 
-export default function ProductCard({ product, isSpecialEdition, onClick }: Props) {
+export default function ProductCard({ product, isSpecialEdition, onClick, isFirst = false }: Props) {
   const [imgIndex, setImgIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [showSwipeHint, setShowSwipeHint] = useState(false);
@@ -16,12 +17,13 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
 
   const hasMultipleImages = product.images.length > 1;
 
-  // Active l'indicateur de swipe sur mobile au chargement si le produit a plusieurs images
+  // Déclenche l'indicateur visuel et l'animation sur mobile / tactile
   useEffect(() => {
     if (hasMultipleImages) {
       const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
       if (isTouchDevice) {
         setShowSwipeHint(true);
+        // Masque l'indicateur après l'animation (3,5 secondes)
         const timer = setTimeout(() => setShowSwipeHint(false), 3500);
         return () => clearTimeout(timer);
       }
@@ -40,8 +42,6 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
 
   // --- Gestion du Survol (PC) ---
   const handleMouseEnter = () => {
-    // Si l'utilisateur n'a pas encore cliqué sur les flèches pendant ce survol,
-    // on passe automatiquement à la deuxième image
     if (hasMultipleImages && !hasHovered) {
       setImgIndex(1);
       setHasHovered(true);
@@ -50,15 +50,15 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
 
   const handleMouseLeave = () => {
     if (hasMultipleImages) {
-      setImgIndex(0); // Revient à la première image
-      setHasHovered(false); // Réinitialise l'état du survol
+      setImgIndex(0);
+      setHasHovered(false);
     }
   };
 
   // --- Gestion du Swipe (Mobile) ---
   const handleTouchStart = (e: TouchEvent) => {
     setTouchStartX(e.targetTouches[0].clientX);
-    setShowSwipeHint(false);
+    setShowSwipeHint(false); // Coupe l'animation dès que l'utilisateur touche l'écran
   };
 
   const handleTouchEnd = (e: TouchEvent) => {
@@ -90,7 +90,7 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
           : 'bg-white border border-stone-200 hover:border-stone-400 hover:shadow-stone-300/40'
       }`}
     >
-      {/* Préchargement de la deuxième image en arrière-plan */}
+      {/* Préchargement de la deuxième image */}
       {hasMultipleImages && (
         <link rel="preload" as="image" href={product.images[1]} />
       )}
@@ -101,22 +101,41 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
         onTouchStart={hasMultipleImages ? handleTouchStart : undefined}
         onTouchEnd={hasMultipleImages ? handleTouchEnd : undefined}
       >
-        {/* Rendu dynamique basé directement sur l'état imgIndex (permet aux flèches d'agir instantanément) */}
-        {product.images.map((src, idx) => (
-          <img
-            key={idx}
-            src={src}
-            alt={`${product.name} — vue ${idx + 1}`}
-            className={`w-full h-full object-cover object-center transition-opacity duration-500 group-hover:scale-105 pointer-events-none absolute inset-0 ${
-              idx === imgIndex ? 'opacity-100 z-0' : 'opacity-0 -z-10'
-            }`}
-          />
-        ))}
+        {/* Images avec animation Teaser CSS sur la toute première carte */}
+        <div 
+          className="absolute inset-0 w-full h-full"
+          style={{
+            animation: (isFirst && showSwipeHint) ? 'swipeTeaser 2.5s ease-in-out infinite' : 'none'
+          }}
+        >
+          {product.images.map((src, idx) => (
+            <img
+              key={idx}
+              src={src}
+              alt={`${product.name} — vue ${idx + 1}`}
+              className={`w-full h-full object-cover object-center transition-opacity duration-500 group-hover:scale-105 pointer-events-none absolute inset-0 ${
+                idx === imgIndex ? 'opacity-100 z-0' : 'opacity-0 -z-10'
+              }`}
+            />
+          ))}
+        </div>
 
-        {/* Indication de Swipe Visuelle sur Mobile */}
+        {/* Badge "Swipe" flottant + Doigt qui bouge (Uniquement sur mobile au début) */}
         {showSwipeHint && (
-          <div className="absolute top-3 right-3 z-20 pointer-events-none bg-black/60 backdrop-blur-xs text-white text-[10px] font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5 animate-pulse transition-opacity duration-500">
-            <span className="inline-block animate-bounce">↔</span> Glisser pour voir
+          <div className="absolute top-3 right-3 z-20 pointer-events-none bg-black/75 backdrop-blur-xs text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg transition-opacity duration-500">
+            {/* Icône SVG d'une main/doigt qui swipe horizontalement */}
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              className="w-3.5 h-3.5"
+              style={{ animation: 'fingerMove 1.2s ease-in-out infinite' }}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.05 4.575a1.575 1.575 0 1 1 3.15 0v3m-3.15-3a1.575 1.575 0 0 0-3.15 0v5.25M13.2 4.575a1.575 1.575 0 1 1 3.15 0v3m0-3a1.575 1.575 0 0 1 3.15 0v6.75a6.75 6.75 0 0 1-13.5 0v-5.25" />
+            </svg>
+            <span>Swipe</span>
           </div>
         )}
 
@@ -139,7 +158,7 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
           </div>
         </div>
 
-        {/* Flèches de Navigation (Visibles sur PC au survol) */}
+        {/* Flèches de Navigation (PC) */}
         {hasMultipleImages && (
           <>
             <div
@@ -159,7 +178,7 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
               <span className="text-xs">▶</span>
             </div>
 
-            {/* Petits Points de Navigation */}
+            {/* Points de Navigation */}
             <div className="absolute bottom-2.5 left-0 right-0 flex justify-center gap-1.5 z-10">
               {product.images.map((_, i) => (
                 <div
@@ -211,6 +230,22 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
           </span>
         </div>
       </div>
+
+      {/* Styles des animations injectés proprement */}
+      <style>{`
+        /* L'image glisse légèrement à gauche, à droite, puis revient au centre */
+        @keyframes swipeTeaser {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-30px); }
+          50% { transform: translateX(20px); }
+          75% { transform: translateX(0); }
+        }
+        /* Le petit doigt imite un glissement de gauche à droite */
+        @keyframes fingerMove {
+          0%, 100% { transform: translateX(4px); opacity: 0.4; }
+          50% { transform: translateX(-4px); opacity: 1; }
+        }
+      `}</style>
     </article>
   );
 }
