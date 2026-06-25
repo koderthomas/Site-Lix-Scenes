@@ -14,7 +14,31 @@ export default function ProductModal({ product, onClose }: Props) {
 
   const hasMultipleImages = product.images.length > 1;
 
-  // Bloque le défilement du body + active l'indicateur de swipe sur mobile
+  // --- Gestion de la touche "Retour" du Smartphone ---
+  useEffect(() => {
+    // 1. On pousse un état virtuel dans l'historique du navigateur dès l'ouverture
+    window.history.pushState({ modalOpen: true }, '');
+
+    // 2. Si l'utilisateur clique sur "Retour" sur son téléphone, cela déclenche 'popstate'
+    const handlePopState = () => {
+      onClose(); // On ferme la modal proprement
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      
+      // Si la modal se ferme via la croix ou le clic extérieur (et pas via le bouton retour),
+      // on nettoie l'état virtuel pour ne pas polluer l'historique de l'utilisateur
+      if (window.history.state?.modalOpen) {
+        window.history.back();
+      }
+    };
+  }, [onClose]);
+  // ----------------------------------------------------
+
+  // Fermeture avec la touche Échap sur ordinateur + blocage défilement du fond
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
@@ -45,7 +69,7 @@ export default function ProductModal({ product, onClose }: Props) {
   // --- Gestion du Swipe ---
   const handleTouchStart = (e: TouchEvent) => {
     setTouchStartX(e.targetTouches[0].clientX);
-    setShowSwipeHint(false); // Cache l'indice dès que l'utilisateur interagit
+    setShowSwipeHint(false);
   };
 
   const handleTouchEnd = (e: TouchEvent) => {
@@ -69,7 +93,7 @@ export default function ProductModal({ product, onClose }: Props) {
       className="fixed inset-0 z-[100] flex items-stretch justify-end"
       onClick={onClose}
     >
-      {/* Préchargement de toutes les images de la galerie pour une navigation instantanée */}
+      {/* Préchargement de toutes les images de la galerie */}
       {product.images.map((src, idx) => (
         <link key={idx} rel="preload" as="image" href={src} />
       ))}
@@ -111,7 +135,6 @@ export default function ProductModal({ product, onClose }: Props) {
           onTouchStart={hasMultipleImages ? handleTouchStart : undefined}
           onTouchEnd={hasMultipleImages ? handleTouchEnd : undefined}
         >
-          {/* Wrapper avec l'animation de va-et-vient lors de l'ouverture de la modal */}
           <div
             className="w-full h-full"
             style={{
@@ -127,7 +150,7 @@ export default function ProductModal({ product, onClose }: Props) {
             />
           </div>
 
-          {/* Badge "Swipe" flottant + Doigt qui bouge sur mobile au départ */}
+          {/* Badge "Swipe" flottant */}
           {showSwipeHint && (
             <div className="absolute top-4 right-16 z-20 pointer-events-none bg-black/75 backdrop-blur-xs text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg transition-opacity duration-500">
               <svg 
@@ -204,14 +227,11 @@ export default function ProductModal({ product, onClose }: Props) {
 
         {/* Product info */}
         <div className="flex-1 p-6 sm:p-8">
-          {/* Category breadcrumb */}
           <p className="text-stone-400 text-[10px] uppercase tracking-widest font-bold mb-2">
             {product.isSpecial ? 'Édition Spéciale · Schlapp von Lixingen' : 'Collection Lix\'Scènes'}
           </p>
 
-          <h2
-            className="font-black text-stone-900 text-2xl sm:text-3xl uppercase tracking-tight leading-none mb-6"
-          >
+          <h2 className="font-black text-stone-900 text-2xl sm:text-3xl uppercase tracking-tight leading-none mb-6">
             {product.name}
           </h2>
 
@@ -250,14 +270,12 @@ export default function ProductModal({ product, onClose }: Props) {
           from { transform: translateX(100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
         }
-        /* L'image glisse légèrement à gauche, à droite, puis revient au centre */
         @keyframes swipeTeaserModal {
           0%, 100% { transform: translateX(0); }
           25% { transform: translateX(-30px); }
           50% { transform: translateX(20px); }
           75% { transform: translateX(0); }
         }
-        /* Le petit doigt imite un glissement de gauche à droite */
         @keyframes fingerMoveModal {
           0%, 100% { transform: translateX(4px); opacity: 0.4; }
           50% { transform: translateX(-4px); opacity: 1; }
