@@ -2,11 +2,13 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-stone-950/95 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+        {/* Hauteur de l'en-tête agrandie (h-20 sur mobile, h-24 sur PC) */}
+        <div className="flex items-center justify-between h-20 sm:h-24">
           <img
-            src="images/DA/Logo.jpg"
+            src="images/DA/Logo_rond.png"
             alt="Lix'Scènes Live Music"
-            className="h-11 sm:h-14 w-auto object-contain"
+            {/* Taille du logo agrandie (h-16 sur mobile, h-20 sur PC) */}
+            className="h-16 sm:h-20 w-auto object-contain"
           />
           <div className="hidden sm:flex items-center gap-3">
             <span className="w-1.5 h-1.5 rounded-full bg-brand-coral" />
