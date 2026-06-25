@@ -25,8 +25,8 @@ export const products: Product[] = [
     price: 15,
     images: [
       'images/articles/t-shirt_homme.jpeg',
-      'images/articles/t-shirt_homme_2.jpeg',
       'images/ori/t-shirt_homme_ori.jpg',
+      'images/articles/t-shirt_homme_2.jpeg',
     ],
     category: 'homme',
   },
@@ -37,8 +37,8 @@ export const products: Product[] = [
     price: 15,
     images: [
       'images/articles/debardeur_homme.jpeg',
-      'images/articles/debardeur_homme_2.jpeg',
       'images/ori/debardeur_homme_ori.jpg',
+      'images/articles/debardeur_homme_2.jpeg',
     ],
     category: 'homme',
   },
@@ -49,8 +49,8 @@ export const products: Product[] = [
     price: 18,
     images: [
       'images/articles/t-shirt_homme_baseball.jpeg',
-      'images/articles/t-shirt_homme_baseball_2.jpeg',
       'images/ori/t-shirt_homme_baseball_ori.jpg',
+      'images/articles/t-shirt_homme_baseball_2.jpeg',
     ],
     category: 'homme',
   },
@@ -61,8 +61,8 @@ export const products: Product[] = [
     price: 50,
     images: [
       'images/articles/gilet_a_capuche_homme.jpeg',
-      'images/articles/gilet_a_capuche_homme_2.jpeg',
       'images/ori/gilet_a_capuche_homme_ori.jpg',
+      'images/articles/gilet_a_capuche_homme_2.jpeg',
     ],
     category: 'homme',
   },
@@ -73,8 +73,8 @@ export const products: Product[] = [
     price: 60,
     images: [
       'images/articles/blouson_teddy_homme.jpeg',
-      'images/articles/blouson_teddy_homme_2.jpeg',
       'images/ori/blouson_teddy_homme_ori.jpg',
+      'images/articles/blouson_teddy_homme_2.jpeg',
     ],
     category: 'homme',
   },
@@ -85,8 +85,8 @@ export const products: Product[] = [
     price: 15,
     images: [
       'images/articles/t-shirt_femme.jpeg',
-      'images/articles/t-shirt_femme_2.jpeg',
       'images/ori/t-shirt_femme_ori.jpg',
+      'images/articles/t-shirt_femme_2.jpeg',
     ],
     category: 'femme',
   },
@@ -97,8 +97,8 @@ export const products: Product[] = [
     price: 15,
     images: [
       'images/articles/debardeur_femme.jpeg',
-      'images/articles/debardeur_femme_2.jpeg',
       'images/ori/debardeur_femme_ori.jpg',
+      'images/articles/debardeur_femme_2.jpeg',
     ],
     category: 'femme',
   },
@@ -109,8 +109,8 @@ export const products: Product[] = [
     price: 50,
     images: [
       'images/articles/gilet_a_capuche_femme.jpeg',
-      'images/articles/gilet_a_capuche_femme_2.jpeg',
       'images/ori/gilet_a_capuche_femme_ori.jpg',
+      'images/articles/gilet_a_capuche_femme_2.jpeg',
     ],
     category: 'femme',
   },
@@ -121,8 +121,8 @@ export const products: Product[] = [
     price: 25,
     images: [
       'images/articles/sweat_mixte.jpeg',
-      'images/articles/sweat_mixte_2.jpeg',
       'images/ori/sweat_mixte_ori.jpg',
+      'images/articles/sweat_mixte_2.jpeg',
     ],
     category: 'mixte',
   },
@@ -133,8 +133,8 @@ export const products: Product[] = [
     price: 30,
     images: [
       'images/articles/sweat_a_capuche_mixte.jpeg',
-      'images/articles/sweat_a_capuche_mixte_2.jpeg',
       'images/ori/sweat_a_capuche_mixte_ori.jpg',
+      'images/articles/sweat_a_capuche_mixte_2.jpeg',
     ],
     category: 'mixte',
   },
@@ -145,8 +145,8 @@ export const products: Product[] = [
     price: 15,
     images: [
       'images/articles/t-shirt_enfant.jpeg',
-      'images/articles/t-shirt_enfant_2.jpeg',
       'images/ori/t-shirt_enfant_ori.jpg',
+      'images/articles/t-shirt_enfant_2.jpeg',
     ],
     category: 'enfant',
   },
@@ -157,8 +157,8 @@ export const products: Product[] = [
     price: 30,
     images: [
       'images/articles/tablier.jpeg',
-      'images/articles/tablier_2.jpeg',
       'images/ori/tablier_ori.jpg',
+      'images/articles/tablier_2.jpeg',
     ],
     category: 'accessoires',
   },
@@ -169,8 +169,8 @@ export const products: Product[] = [
     price: 15,
     images: [
       'images/articles/casquette.jpeg',
-      'images/articles/casquette_2.jpeg',
       'images/ori/casquette_ori.jpg',
+      'images/articles/casquette_2.jpeg',
     ],
     category: 'accessoires',
   },
@@ -181,8 +181,8 @@ export const products: Product[] = [
     price: 15,
     images: [
       'images/articles/bonnet.jpeg',
-      'images/articles/bonnet_2.jpeg',
       'images/ori/bonnet_ori.jpg',
+      'images/articles/bonnet_2.jpeg',
     ],
     category: 'accessoires',
   },
@@ -193,8 +193,8 @@ export const products: Product[] = [
     price: 15,
     images: [
       'images/articles/sac_a_dos.jpeg',
-      'images/articles/sac_a_dos_2.jpeg',
       'images/ori/sac_a_dos_ori.jpg',
+      'images/articles/sac_a_dos_2.jpeg',
     ],
     category: 'accessoires',
   },
@@ -205,8 +205,8 @@ export const products: Product[] = [
     price: 20,
     images: [
       'images/articles/t-shirt_edition_speciale_homme.jpeg',
-      'images/articles/t-shirt_edition_speciale_homme_2.jpeg',
       'images/ori/t-shirt_edition_speciale_homme_ori.jpg',
+      'images/articles/t-shirt_edition_speciale_homme_2.jpeg',
     ],
     category: 'edition-speciale',
     isSpecial: true,
@@ -218,8 +218,8 @@ export const products: Product[] = [
     price: 20,
     images: [
       'images/articles/t-shirt_edition_speciale_femme.jpeg',
-      'images/articles/t-shirt_edition_speciale_femme_2.jpeg',
       'images/ori/t-shirt_edition_speciale_femme_ori.jpg',
+      'images/articles/t-shirt_edition_speciale_femme_2.jpeg',
     ],
     category: 'edition-speciale',
     isSpecial: true,
