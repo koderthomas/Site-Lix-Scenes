@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, TouchEvent } from 'react';
 import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import type { Product } from '../data/products';
 
@@ -10,16 +10,44 @@ interface Props {
 
 export default function ProductCard({ product, isSpecialEdition, onClick }: Props) {
   const [imgIndex, setImgIndex] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
-  const prev = (e: React.MouseEvent) => {
+  const prev = (e: React.MouseEvent | TouchEvent) => {
     e.stopPropagation();
     setImgIndex(i => (i - 1 + product.images.length) % product.images.length);
   };
 
-  const next = (e: React.MouseEvent) => {
+  const next = (e: React.MouseEvent | TouchEvent) => {
     e.stopPropagation();
     setImgIndex(i => (i + 1) % product.images.length);
   };
+
+  // --- Gestion du Swipe ---
+  const handleTouchStart = (e: TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: TouchEvent) => {
+    if (touchStartX === null) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchStartX - touchEndX;
+    const minSwipeDistance = 40; // Seuil en pixels légèrement plus sensible pour les cartes
+
+    if (Math.abs(diffX) > minSwipeDistance) {
+      // Bloque l'ouverture de la modal liée au onClick de l'article
+      e.stopPropagation();
+      
+      if (diffX > 0) {
+        next(e);
+      } else {
+        prev(e);
+      }
+    }
+    
+    setTouchStartX(null);
+  };
+  // -------------------------
 
   return (
     <article
@@ -31,12 +59,16 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
       }`}
     >
       {/* Image area */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-stone-100">
+      <div 
+        className="relative aspect-[3/4] overflow-hidden bg-stone-100 select-none touch-pan-y"
+        onTouchStart={product.images.length > 1 ? handleTouchStart : undefined}
+        onTouchEnd={product.images.length > 1 ? handleTouchEnd : undefined}
+      >
         <img
           key={imgIndex}
           src={product.images[imgIndex]}
           alt={`${product.name} — vue ${imgIndex + 1}`}
-          className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105 pointer-events-none"
         />
 
         {/* Special badge */}
