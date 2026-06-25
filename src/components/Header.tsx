@@ -4,7 +4,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           <img
-            src="images/Logo.jpg"
+            src="images/DA/Logo.jpg"
             alt="Lix'Scènes Live Music"
             className="h-11 sm:h-14 w-auto object-contain"
           />
