@@ -106,23 +106,42 @@ export default function ProductModal({ product, onClose }: Props) {
 
         {/* Main image with navigation */}
         <div 
-          className="relative bg-stone-100 shrink-0 select-none touch-pan-y" 
+          className="relative bg-stone-100 shrink-0 select-none touch-pan-y overflow-hidden" 
           style={{ minHeight: '55vh' }}
           onTouchStart={hasMultipleImages ? handleTouchStart : undefined}
           onTouchEnd={hasMultipleImages ? handleTouchEnd : undefined}
         >
-          <img
-            key={activeImg}
-            src={product.images[activeImg]}
-            alt={`${product.name} — photo ${activeImg + 1}`}
-            className="w-full h-full object-contain pointer-events-none"
-            style={{ minHeight: '55vh', maxHeight: '65vh' }}
-          />
+          {/* Wrapper avec l'animation de va-et-vient lors de l'ouverture de la modal */}
+          <div
+            className="w-full h-full"
+            style={{
+              animation: showSwipeHint ? 'swipeTeaserModal 2.5s ease-in-out infinite' : 'none'
+            }}
+          >
+            <img
+              key={activeImg}
+              src={product.images[activeImg]}
+              alt={`${product.name} — photo ${activeImg + 1}`}
+              className="w-full h-full object-contain pointer-events-none"
+              style={{ minHeight: '55vh', maxHeight: '65vh' }}
+            />
+          </div>
 
-          {/* Indication Swipe Visuelle sur Mobile */}
+          {/* Badge "Swipe" flottant + Doigt qui bouge sur mobile au départ */}
           {showSwipeHint && (
-            <div className="absolute top-4 right-16 z-20 pointer-events-none bg-black/60 backdrop-blur-xs text-white text-[10px] font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5 animate-pulse transition-opacity duration-500">
-              <span className="inline-block animate-bounce">↔</span> Glisser pour défiler
+            <div className="absolute top-4 right-16 z-20 pointer-events-none bg-black/75 backdrop-blur-xs text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg transition-opacity duration-500">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2.5" 
+                className="w-3.5 h-3.5"
+                style={{ animation: 'fingerMoveModal 1.2s ease-in-out infinite' }}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.05 4.575a1.575 1.575 0 1 1 3.15 0v3m-3.15-3a1.575 1.575 0 0 0-3.15 0v5.25M13.2 4.575a1.575 1.575 0 1 1 3.15 0v3m0-3a1.575 1.575 0 0 1 3.15 0v6.75a6.75 6.75 0 0 1-13.5 0v-5.25" />
+              </svg>
+              <span>Swipe</span>
             </div>
           )}
 
@@ -230,6 +249,18 @@ export default function ProductModal({ product, onClose }: Props) {
         @keyframes slideIn {
           from { transform: translateX(100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
+        }
+        /* L'image glisse légèrement à gauche, à droite, puis revient au centre */
+        @keyframes swipeTeaserModal {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-30px); }
+          50% { transform: translateX(20px); }
+          75% { transform: translateX(0); }
+        }
+        /* Le petit doigt imite un glissement de gauche à droite */
+        @keyframes fingerMoveModal {
+          0%, 100% { transform: translateX(4px); opacity: 0.4; }
+          50% { transform: translateX(-4px); opacity: 1; }
         }
       `}</style>
     </div>
