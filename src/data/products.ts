@@ -145,9 +145,7 @@ export const products: Product[] = [
     price: 15,
     images: [
       'images/articles/t-shirt_enfant.jpeg',
-      'images/articles/t-shirt_enfant_1.jpeg',
       'images/articles/t-shirt_enfant_2.jpeg',
-      'images/articles/t-shirt_enfant_3.jpeg',
       'images/ori/t-shirt enfant ori.jpeg',
     ],
     category: 'enfant',
