@@ -81,8 +81,8 @@ export default function ProductCard({ product, isSpecialEdition, onClick, isFirs
 
   // --- Gestion du clic pour Google Analytics ---
   const handleCardClick = () => {
-    // 1. Envoi des données à Google Analytics
-    if (typeof window !== 'undefined' && (window as any).gtag !== 'undefined') {
+    // 1. Envoi des données à Google Analytics avec contournement TypeScript pour window.gtag
+    if (typeof window !== 'undefined' && (window as any).gtag !== undefined) {
       (window as any).gtag('event', 'select_item', {
         item_list_id: "catalogue_principal",
         item_list_name: "Catalogue Lix'Scènes",
@@ -91,7 +91,7 @@ export default function ProductCard({ product, isSpecialEdition, onClick, isFirs
             item_id: product.id.toString(),
             item_name: product.name,
             price: product.price,
-            item_category: (product as any).category || "Général" // Sécurité si la propriété category n'est pas typée
+            item_category: (product as any).category || "Général"
           }
         ]
       });
