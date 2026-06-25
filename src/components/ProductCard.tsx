@@ -1,4 +1,4 @@
-import { useState, TouchEvent } from 'react';
+import { useState, useEffect, TouchEvent } from 'react';
 import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import type { Product } from '../data/products';
 
@@ -11,6 +11,7 @@ interface Props {
 export default function ProductCard({ product, isSpecialEdition, onClick }: Props) {
   const [imgIndex, setImgIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
 
   const prev = (e: React.MouseEvent | TouchEvent) => {
     e.stopPropagation();
@@ -22,8 +23,32 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
     setImgIndex(i => (i + 1) % product.images.length);
   };
 
+  // --- Défilement Aléatoire Automatique ---
+  useEffect(() => {
+    // Inutile de lancer un timer s'il n'y a qu'une seule image ou si le défilement est en pause
+    if (product.images.length <= 1 || isPaused) return;
+
+    const interval = setInterval(() => {
+      setImgIndex(currentIndex => {
+        if (product.images.length <= 1) return currentIndex;
+        
+        // Sélectionne un index aléatoire différent de l'actuel
+        const availableIndexes = product.images
+          .map((_, index) => index)
+          .filter(index => index !== currentIndex);
+        
+        const randomIndex = Math.floor(Math.random() * availableIndexes.length);
+        return availableIndexes[randomIndex];
+      });
+    }, 4000); // Change l'image toutes les 4 secondes (tu peux ajuster ce délai)
+
+    return () => clearInterval(interval);
+  }, [product.images, isPaused]);
+  // ----------------------------------------
+
   // --- Gestion du Swipe ---
   const handleTouchStart = (e: TouchEvent) => {
+    setIsPaused(true); // Met en pause pendant l'interaction
     setTouchStartX(e.targetTouches[0].clientX);
   };
 
@@ -32,12 +57,10 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
 
     const touchEndX = e.changedTouches[0].clientX;
     const diffX = touchStartX - touchEndX;
-    const minSwipeDistance = 40; // Seuil en pixels légèrement plus sensible pour les cartes
+    const minSwipeDistance = 40;
 
     if (Math.abs(diffX) > minSwipeDistance) {
-      // Bloque l'ouverture de la modal liée au onClick de l'article
       e.stopPropagation();
-      
       if (diffX > 0) {
         next(e);
       } else {
@@ -46,12 +69,16 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
     }
     
     setTouchStartX(null);
+    // Un petit délai avant de relancer le défilement auto après un swipe
+    setTimeout(() => setIsPaused(false), 2000);
   };
   // -------------------------
 
   return (
     <article
       onClick={onClick}
+      onPointerEnter={() => setIsPaused(true)}  // Pause au survol de la souris
+      onPointerLeave={() => setIsPaused(false)} // Relance quand la souris sort
       className={`group rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
         isSpecialEdition
           ? 'bg-white border-2 border-brand-blue/30 hover:border-brand-blue hover:shadow-brand-blue/20'
