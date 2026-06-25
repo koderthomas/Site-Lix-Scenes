@@ -79,9 +79,31 @@ export default function ProductCard({ product, isSpecialEdition, onClick, isFirs
     setTouchStartX(null);
   };
 
+  // --- Gestion du clic pour Google Analytics ---
+  const handleCardClick = () => {
+    // 1. Envoi des données à Google Analytics
+    if (typeof window !== 'undefined' && (window as any).gtag !== 'undefined') {
+      (window as any).gtag('event', 'select_item', {
+        item_list_id: "catalogue_principal",
+        item_list_name: "Catalogue Lix'Scènes",
+        items: [
+          {
+            item_id: product.id.toString(),
+            item_name: product.name,
+            price: product.price,
+            item_category: (product as any).category || "Général" // Sécurité si la propriété category n'est pas typée
+          }
+        ]
+      });
+    }
+
+    // 2. Déclenchement de la modal d'origine
+    onClick();
+  };
+
   return (
     <article
-      onClick={onClick}
+      onClick={handleCardClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={`group rounded-2xl overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
