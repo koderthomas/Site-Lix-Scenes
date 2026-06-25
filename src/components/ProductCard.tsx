@@ -22,11 +22,10 @@ export default function ProductCard({ product, isSpecialEdition, onClick }: Prop
     setImgIndex(i => (i + 1) % product.images.length);
   };
 
-  // --- Effet E-commerce : Troisième photo au survol ---
+  // --- Effet E-commerce : Deuxième photo au survol ---
   const handleMouseEnter = () => {
     if (product.images.length > 1) {
-      const targetIndex = product.images.length >= 3 ? 2 : 1;
-      setImgIndex(targetIndex);
+      setImgIndex(1);
     }
   };
 
