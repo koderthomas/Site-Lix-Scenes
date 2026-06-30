@@ -12,6 +12,17 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState<Category>('tous');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
+  // [IDÉE : CATÉGORIES] Fonction centralisée pour changer de catégorie et envoyer le tag à GA
+  const handleCategoryChange = (categoryId: Category) => {
+    setActiveCategory(categoryId);
+
+    if (typeof window !== 'undefined' && (window as any).gtag !== undefined) {
+      (window as any).gtag('event', 'view_item_list', {
+        item_category: categoryId
+      });
+    }
+  };
+
   const filtered =
     activeCategory === 'tous'
       ? products
@@ -24,7 +35,8 @@ export default function App() {
     <div className="min-h-screen bg-[#111111]">
       <Header />
       <Hero />
-      <CategoryBar active={activeCategory} onChange={setActiveCategory} />
+      {/* Utilisation de notre nouvelle fonction de changement de catégorie avec tag GA */}
+      <CategoryBar active={activeCategory} onChange={handleCategoryChange} />
 
       <main
         className={`py-10 sm:py-14 transition-colors duration-300 ${
@@ -116,7 +128,7 @@ export default function App() {
                   Un graphisme exclusif, deux modèles. À ne pas manquer.
                 </p>
                 <button
-                  onClick={() => setActiveCategory('edition-speciale')}
+                  onClick={() => handleCategoryChange('edition-speciale')} // Tag GA envoyé ici aussi
                   className="inline-flex items-center gap-2 bg-white text-[#1A2FA0] font-black text-sm uppercase tracking-wider px-7 py-3.5 rounded-full hover:bg-brand-coral hover:text-white transition-all duration-200 shadow-xl"
                 >
                   Découvrir la collection
