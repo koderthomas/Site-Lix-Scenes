@@ -81,7 +81,7 @@ export default function ProductCard({ product, isSpecialEdition, onClick, isFirs
 
   // --- Gestion du clic pour Google Analytics ---
   const handleCardClick = () => {
-    // 1. Envoi des données à Google Analytics avec contournement TypeScript pour window.gtag
+    // 1. Envoi uniquement du nom et de l'id à Google Analytics (sans les prix textuels qui bloquent les rapports)
     if (typeof window !== 'undefined' && (window as any).gtag !== undefined) {
       (window as any).gtag('event', 'select_item', {
         item_list_id: "catalogue_principal",
@@ -89,9 +89,7 @@ export default function ProductCard({ product, isSpecialEdition, onClick, isFirs
         items: [
           {
             item_id: product.id.toString(),
-            item_name: product.name,
-            price: product.price,
-            item_category: (product as any).category || "Général"
+            item_name: product.name
           }
         ]
       });
